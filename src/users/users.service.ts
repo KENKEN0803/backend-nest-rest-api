@@ -1,4 +1,4 @@
-import { LoggerService } from './../logger/logger.service';
+import { LoggerService } from '../libs/logger/logger.service';
 import { UserEmailInput, UserEmailOutput } from './dto/user-email.dto';
 import {
   CertificatePhoneInput,
@@ -6,7 +6,7 @@ import {
 } from './dto/certificate-phone.dto';
 import { EmailCheckOutput, EmailCheckInput } from './dto/email-check.dto';
 import { EditProfileOutput, EditProfileInput } from './dto/edit-profile.dto';
-import { JwtService } from './../jwt/jwt.service';
+import { JwtService } from '../libs/jwt/jwt.service';
 import { LoginInput, LoginOutput } from './dto/login.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -54,6 +54,12 @@ export class UserService {
       const exists = await this.users.findOne({ email });
 
       if (exists) {
+        //! 사용자가 password와 confirmation_password를 다르게 입력하였을 경우
+        this.loggerService
+          .logger()
+          .error(
+            `${this.loggerService.loggerInfo()} 사용자가 password와 confirmation_password를 다르게 입력하였을 경우`,
+          );
         return {
           ok: false,
           error: 'existUser',
@@ -69,10 +75,18 @@ export class UserService {
         }),
       );
 
+      //* success
+      this.loggerService
+        .logger()
+        .info(`${this.loggerService.loggerInfo()} 회원가입 성공`);
       return {
         ok: true,
       };
     } catch (error) {
+      //! extraError
+      this.loggerService
+        .logger()
+        .error(`${this.loggerService.loggerInfo()} extraError`);
       return {
         ok: false,
         error,
@@ -144,11 +158,20 @@ export class UserService {
   async findById(userId: number): Promise<UserProfileOutput> {
     try {
       const user = await this.users.findOneOrFail(userId);
+
+      //* success
+      this.loggerService
+        .logger()
+        .info(`${this.loggerService.loggerInfo()} 회원 아이디 호출 성공`);
       return {
         ok: true,
         user,
       };
     } catch (error) {
+      //! extraError
+      this.loggerService
+        .logger()
+        .error(`${this.loggerService.loggerInfo()} extraError`);
       return { ok: false, error };
     }
   }
@@ -156,11 +179,19 @@ export class UserService {
   async findByEmail(email: string): Promise<UserEmailOutput> {
     try {
       const user = await this.users.findOneOrFail({ email });
+      //* success
+      this.loggerService
+        .logger()
+        .info(`${this.loggerService.loggerInfo()} 회원 이메일 호출 성공`);
       return {
         ok: true,
         user,
       };
     } catch (error) {
+      //! extraError
+      this.loggerService
+        .logger()
+        .error(`${this.loggerService.loggerInfo()} extraError`);
       return { ok: false, error };
     }
   }
@@ -170,7 +201,6 @@ export class UserService {
     { name, email, password, confirmation_password }: EditProfileInput,
   ): Promise<EditProfileOutput> {
     try {
-      //? let으로 하면 왜 안되는건지 확인 필요
       const searchParam: Array<{ email: string }> = [];
 
       const user = await this.users.findOne(userId);

@@ -16,10 +16,10 @@ import {
   Put,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { AuthUser } from '../auth/auth-user.decorator';
+import { AuthUser } from '../libs/auth/auth-user.decorator';
 import { itemOptions } from '../common/utils/multer.options';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Role } from 'src/auth/admin.decorator';
+import { Role } from 'src/libs/auth/role.decorator';
 
 @Controller('shops')
 export class ShopsController {

@@ -1,4 +1,4 @@
-import { AllowedRoles } from './admin.decorator';
+import { AllowedRoles } from './role.decorator';
 import {
   CanActivate,
   ExecutionContext,

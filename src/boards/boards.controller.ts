@@ -2,7 +2,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { EditBoardInput, EditBoardOutput } from './dto/edit-board.dto';
 import { DeleteBoardOutput } from './dto/delete-board.dto';
 import { User } from './../users/entity/user.entity';
-import { AuthUser } from 'src/auth/auth-user.decorator';
+import { AuthUser } from 'src/libs/auth/auth-user.decorator';
 import { WriteBoardInput, WriteBoardOutput } from './dto/write-board.dto';
 import {
   Controller,

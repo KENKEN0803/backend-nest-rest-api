@@ -6,7 +6,7 @@ import { EmailCheckInput, EmailCheckOutput } from './dto/email-check.dto';
 import { EditProfileInput, EditProfileOutput } from './dto/edit-profile.dto';
 import { User } from './entity/user.entity';
 import { Body, Controller, Post, Get, Req, Res, Put } from '@nestjs/common';
-import { AuthUser } from 'src/auth/auth-user.decorator';
+import { AuthUser } from 'src/libs/auth/auth-user.decorator';
 import { UserService } from './users.service';
 import { Request, Response } from 'express';
 

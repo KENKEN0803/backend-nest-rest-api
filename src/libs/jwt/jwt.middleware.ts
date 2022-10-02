@@ -31,15 +31,19 @@ export class JwtMiddleware implements NestMiddleware {
       'email' in req.headers
     ) {
       const { token, refresh_token, email } = req.headers;
+      //const { Authorization, refresh_token, email } = req.headers;
 
       let decoded = {};
       let refreshTokenDecoded = {};
+      // const token: string = Authorization as string;
+      //! Bear 체크하기
 
       try {
         //* task_2: access_token decoded 해주기
         //1. 문제가 없다면 바로 아래 if 문에서 검증 시작
         //2. 문제가 있다면 catch 문으로 진행
 
+        // decoded = this.jwtService.verify(token.split(' ').slice(-1)[0]);
         decoded = this.jwtService.verify(token.toString());
       } catch {
         //* task_3 access_token이 만료됐을 경우 refresh_token 찾기

@@ -1,4 +1,4 @@
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './libs/auth/auth.module';
 import { BoardsModule } from './boards/boards.module';
 import { Board } from 'src/boards/entity/board.entity';
 import { AppService } from './app.service';
@@ -14,13 +14,13 @@ import { UsersModule } from './users/users.module';
 import * as Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/entity/user.entity';
-import { JwtModule } from './jwt/jwt.module';
-import { JwtMiddleware } from './jwt/jwt.middleware';
+import { JwtModule } from './libs/jwt/jwt.module';
+import { JwtMiddleware } from './libs/jwt/jwt.middleware';
 import { MulterModule } from '@nestjs/platform-express';
 import { ShopsModule } from './shops/shops.module';
 import { Item } from './shops/entities/item.entity';
 import { Order } from './shops/entities/order.entity';
-import { LoggerModule } from './logger/logger.module';
+import { LoggerModule } from './libs/logger/logger.module';
 
 @Module({
   imports: [
@@ -68,7 +68,9 @@ import { LoggerModule } from './logger/logger.module';
     MulterModule.register({
       dest: './files',
     }),
-    LoggerModule.forRoot(),
+    LoggerModule.forRoot({
+      nodeEnv: process.env.NODE_ENV,
+    }),
     UsersModule,
     BoardsModule,
     ShopsModule,

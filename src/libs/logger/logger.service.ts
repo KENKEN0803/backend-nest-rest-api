@@ -1,9 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { CONFIG_OPTIIONS } from '../../common/common.constatnt';
+import { Inject, Injectable } from '@nestjs/common';
 import * as winston from 'winston';
 import * as winstonDaily from 'winston-daily-rotate-file';
+import { LoggerModuleOptions } from './logger.interface';
 
 @Injectable()
 export class LoggerService {
+  constructor(
+    @Inject(CONFIG_OPTIIONS) private readonly options: LoggerModuleOptions,
+  ) {}
+
   logger(): winston.Logger {
     const { combine, timestamp, label, printf } = winston.format;
     //* 로그 파일 저장 경로 → 루트 경로/logs 폴더
@@ -61,7 +67,7 @@ export class LoggerService {
       ],
     });
 
-    if (process.env.NODE_ENV !== 'production') {
+    if (this.options.nodeEnv !== 'production') {
       logger.add(
         new winston.transports.Console({
           format: winston.format.combine(
