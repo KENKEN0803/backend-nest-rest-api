@@ -20,6 +20,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { ShopsModule } from './shops/shops.module';
 import { Item } from './shops/entities/item.entity';
 import { Order } from './shops/entities/order.entity';
+import { LoggerModule } from './logger/logger.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { Order } from './shops/entities/order.entity';
     MulterModule.register({
       dest: './files',
     }),
+    LoggerModule.forRoot(),
     UsersModule,
     BoardsModule,
     ShopsModule,

@@ -1,3 +1,4 @@
+import { LoggerService } from './../logger/logger.service';
 import { UserEmailInput, UserEmailOutput } from './dto/user-email.dto';
 import {
   CertificatePhoneInput,
@@ -26,6 +27,7 @@ export class UserService {
   constructor(
     @InjectRepository(User) private readonly users: Repository<User>,
     private readonly jwtService: JwtService,
+    private readonly loggerService: LoggerService,
   ) {}
 
   async postJoin({
@@ -37,6 +39,12 @@ export class UserService {
   }: CreateAccountInput): Promise<CreateAccountOutput> {
     try {
       if (password !== confirmation_password) {
+        //! 사용자가 password와 confirmation_password를 다르게 입력하였을 경우
+        this.loggerService
+          .logger()
+          .error(
+            `${this.loggerService.loggerInfo()} 사용자가 password와 confirmation_password를 다르게 입력하였을 경우`,
+          );
         return {
           ok: false,
           error: 'wrongPassword',
@@ -76,6 +84,12 @@ export class UserService {
     try {
       const user = await this.users.findOne({ email });
       if (!user) {
+        //! 사용자가 존재하지 않는 이메일을 입력하였을 경우
+        this.loggerService
+          .logger()
+          .error(
+            `${this.loggerService.loggerInfo()} 사용자가 존재하지 않는 이메일을 입력하였을 경우`,
+          );
         return {
           ok: false,
           error: 'existUser',
@@ -84,6 +98,12 @@ export class UserService {
 
       const passwordCorrect = await user.checkPassword(password);
       if (!passwordCorrect) {
+        //! 잘못된 비밀번호를 입력했을 경우
+        this.loggerService
+          .logger()
+          .error(
+            `${this.loggerService.loggerInfo()} 잘못된 비밀번호를 입력했을 경우`,
+          );
         return {
           ok: false,
           error: 'wrongPassword',
@@ -100,12 +120,20 @@ export class UserService {
 
       await this.users.save(user);
 
+      //* success
+      this.loggerService
+        .logger()
+        .info(`${this.loggerService.loggerInfo()} 로그인 성공`);
       return {
         ok: true,
         token,
         refreshToken: hashedRefreshToken,
       };
     } catch (error) {
+      //! extraError
+      this.loggerService
+        .logger()
+        .error(`${this.loggerService.loggerInfo()} extraError`);
       return {
         ok: false,
         error,
@@ -142,7 +170,8 @@ export class UserService {
     { name, email, password, confirmation_password }: EditProfileInput,
   ): Promise<EditProfileOutput> {
     try {
-      let searchParam = [];
+      //? let으로 하면 왜 안되는건지 확인 필요
+      const searchParam: Array<{ email: string }> = [];
 
       const user = await this.users.findOne(userId);
 
