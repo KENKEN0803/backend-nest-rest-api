@@ -172,7 +172,7 @@ export class UserService {
       this.loggerService
         .logger()
         .error(`${this.loggerService.loggerInfo()} extraError`);
-      return { ok: false, error };
+      return { ok: false, error: 'extraError' };
     }
   }
 
@@ -206,17 +206,25 @@ export class UserService {
       const user = await this.users.findOne(userId);
 
       if (!user) {
+        //! 유저가 존재 하지 않는 경우
+        this.loggerService
+          .logger()
+          .error(`${this.loggerService.loggerInfo()} 존재하지 않는 유저`);
         return {
           ok: false,
-          error: '존재하는 유저가 없습니다',
+          error: 'notExistUser',
         };
       }
 
       if (password) {
         if (password !== confirmation_password) {
+          //! 유저가 비밀번호와 확인 비밀번호를 제대로 입력하지 않았을 경우
+          this.loggerService
+            .logger()
+            .error(`${this.loggerService.loggerInfo()} 잘못된 비밀번호`);
           return {
             ok: false,
-            error: '비밀번호가 일치하지 않습니다',
+            error: 'wrongPassword',
           };
         }
         user.password = password;
@@ -233,9 +241,13 @@ export class UserService {
         if (searchParam.length > 0) {
           const foundUser = await this.users.findOne({ where: searchParam });
           if (foundUser && foundUser.id !== user.id) {
+            //! 유저가 이미 존재하는 유저를 입력 했을 경우 에러
+            this.loggerService
+              .logger()
+              .error(`${this.loggerService.loggerInfo()} 이미 존재하는 유저`);
             return {
               ok: false,
-              error: '이미 존재하는 유저 입니다',
+              error: 'existUser',
             };
           }
         }
@@ -244,13 +256,21 @@ export class UserService {
 
       await this.users.save(user);
 
+      //* success
+      this.loggerService
+        .logger()
+        .info(`${this.loggerService.loggerInfo()} 유저 프로필 정보 변경 성공`);
       return {
         ok: true,
       };
     } catch (error) {
+      //! extraError
+      this.loggerService
+        .logger()
+        .error(`${this.loggerService.loggerInfo()} extraError`);
       return {
         ok: false,
-        error,
+        error: 'extraError',
       };
     }
   }
@@ -276,9 +296,13 @@ export class UserService {
         ok: true,
       };
     } catch (error) {
+      //! extraError
+      this.loggerService
+        .logger()
+        .error(`${this.loggerService.loggerInfo()} extraError`);
       return {
         ok: false,
-        error: 'extraServerError',
+        error: 'extraError',
       };
     }
   }
