@@ -1,19 +1,13 @@
 import { FRONTEND_URL } from './../common/common.constatnt';
 import { LoggerService } from '../libs/logger/logger.service';
 import { UserEmailInput, UserEmailOutput } from './dto/user-email.dto';
-import {
-  CertificatePhoneInput,
-  CertificatePhoneOutput,
-} from './dto/certificate-phone.dto';
+import { CertificatePhoneInput, CertificatePhoneOutput } from './dto/certificate-phone.dto';
 import { EmailCheckOutput, EmailCheckInput } from './dto/email-check.dto';
 import { EditProfileOutput, EditProfileInput } from './dto/edit-profile.dto';
 import { JwtService } from '../libs/jwt/jwt.service';
 import { LoginInput, LoginOutput } from './dto/login.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  CreateAccountInput,
-  CreateAccountOutput,
-} from './dto/create-account.dto';
+import { CreateAccountInput, CreateAccountOutput } from './dto/create-account.dto';
 import { User } from './entity/user.entity';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
@@ -32,35 +26,16 @@ export class UserService {
   ) {}
 
   customServerErrorMessage(error: any) {
-    this.loggerService
-      .logger()
-      .error(
-        `${this.loggerService.loggerInfo(
-          'extraError',
-          error.message,
-          error.name,
-          error.stack,
-        )}`,
-      );
+    this.loggerService.logger().error(`${this.loggerService.loggerInfo('extraError', error.message, error.name, error.stack)}`);
   }
 
-  async postJoin({
-    name,
-    email,
-    password,
-    confirmation_password,
-    phoneNum,
-  }: CreateAccountInput): Promise<CreateAccountOutput> {
+  async postJoin({ name, email, password, confirmation_password, phoneNum }: CreateAccountInput): Promise<CreateAccountOutput> {
     try {
       if (password !== confirmation_password) {
         //! 사용자가 password와 confirmation_password를 다르게 입력하였을 경우
         this.loggerService
           .logger()
-          .error(
-            `${this.loggerService.loggerInfo(
-              '사용자가 password와 confirmation_password를 다르게 입력하였을 경우',
-            )}`,
-          );
+          .error(`${this.loggerService.loggerInfo('사용자가 password와 confirmation_password를 다르게 입력하였을 경우')}`);
         return {
           ok: false,
           error: 'wrongPassword',
@@ -73,11 +48,7 @@ export class UserService {
         //! 사용자가 password와 confirmation_password를 다르게 입력하였을 경우
         this.loggerService
           .logger()
-          .error(
-            `${this.loggerService.loggerInfo(
-              '사용자가 password와 confirmation_password를 다르게 입력하였을 경우',
-            )}`,
-          );
+          .error(`${this.loggerService.loggerInfo('사용자가 password와 confirmation_password를 다르게 입력하였을 경우')}`);
         return {
           ok: false,
           error: 'existUser',
@@ -94,9 +65,7 @@ export class UserService {
       );
 
       //* success
-      this.loggerService
-        .logger()
-        .info(`${this.loggerService.loggerInfo('회원가입 성공')}`);
+      this.loggerService.logger().info(`${this.loggerService.loggerInfo('회원가입 성공')}`);
       return {
         ok: true,
       };
@@ -115,13 +84,7 @@ export class UserService {
       const user = await this.users.findOne({ email });
       if (!user) {
         //! 사용자가 존재하지 않는 이메일을 입력하였을 경우
-        this.loggerService
-          .logger()
-          .error(
-            `${this.loggerService.loggerInfo(
-              '사용자가 존재하지 않는 이메일을 입력하였을 경우',
-            )}`,
-          );
+        this.loggerService.logger().error(`${this.loggerService.loggerInfo('사용자가 존재하지 않는 이메일을 입력하였을 경우')}`);
         return {
           ok: false,
           error: 'existUser',
@@ -131,13 +94,7 @@ export class UserService {
       const passwordCorrect = await user.checkPassword(password);
       if (!passwordCorrect) {
         //! 잘못된 비밀번호를 입력했을 경우
-        this.loggerService
-          .logger()
-          .error(
-            `${this.loggerService.loggerInfo(
-              '잘못된 비밀번호를 입력했을 경우',
-            )}`,
-          );
+        this.loggerService.logger().error(`${this.loggerService.loggerInfo('잘못된 비밀번호를 입력했을 경우')}`);
         return {
           ok: false,
           error: 'wrongPassword',
@@ -155,9 +112,7 @@ export class UserService {
       await this.users.save(user);
 
       //* success
-      this.loggerService
-        .logger()
-        .info(`${this.loggerService.loggerInfo('로그인 성공')}`);
+      this.loggerService.logger().info(`${this.loggerService.loggerInfo('로그인 성공')}`);
       return {
         ok: true,
         token,
@@ -178,18 +133,14 @@ export class UserService {
       const user = await this.users.findOneOrFail(userId);
 
       //* success
-      this.loggerService
-        .logger()
-        .info(`${this.loggerService.loggerInfo('회원 아이디 호출 성공')}`);
+      this.loggerService.logger().info(`${this.loggerService.loggerInfo('회원 아이디 호출 성공')}`);
       return {
         ok: true,
         user,
       };
     } catch (error) {
       //! extraError
-      this.loggerService
-        .logger()
-        .error(`${this.loggerService.loggerInfo('extraError')}`);
+      this.loggerService.logger().error(`${this.loggerService.loggerInfo('extraError')}`);
       return { ok: false, error: 'extraError' };
     }
   }
@@ -198,9 +149,7 @@ export class UserService {
     try {
       const user = await this.users.findOneOrFail({ email });
       //* success
-      this.loggerService
-        .logger()
-        .info(`${this.loggerService.loggerInfo('회원 이메일 호출 성공')}`);
+      this.loggerService.logger().info(`${this.loggerService.loggerInfo('회원 이메일 호출 성공')}`);
       return {
         ok: true,
         user,
@@ -223,9 +172,7 @@ export class UserService {
 
       if (!user) {
         //! 유저가 존재 하지 않는 경우
-        this.loggerService
-          .logger()
-          .error(`${this.loggerService.loggerInfo('존재하지 않는 유저')}`);
+        this.loggerService.logger().error(`${this.loggerService.loggerInfo('존재하지 않는 유저')}`);
         return {
           ok: false,
           error: 'notExistUser',
@@ -235,9 +182,7 @@ export class UserService {
       if (password) {
         if (password !== confirmation_password) {
           //! 유저가 비밀번호와 확인 비밀번호를 제대로 입력하지 않았을 경우
-          this.loggerService
-            .logger()
-            .error(`${this.loggerService.loggerInfo('존재하지 않는 유저')}`);
+          this.loggerService.logger().error(`${this.loggerService.loggerInfo('존재하지 않는 유저')}`);
           return {
             ok: false,
             error: 'wrongPassword',
@@ -258,9 +203,7 @@ export class UserService {
           const foundUser = await this.users.findOne({ where: searchParam });
           if (foundUser && foundUser.id !== user.id) {
             //! 유저가 이미 존재하는 유저를 입력 했을 경우 에러
-            this.loggerService
-              .logger()
-              .error(`${this.loggerService.loggerInfo('이미 존재하는 유저')}`);
+            this.loggerService.logger().error(`${this.loggerService.loggerInfo('이미 존재하는 유저')}`);
             return {
               ok: false,
               error: 'existUser',
@@ -273,9 +216,7 @@ export class UserService {
       await this.users.save(user);
 
       //* success
-      this.loggerService
-        .logger()
-        .info(`${this.loggerService.loggerInfo('이미 존재하는 유저')}`);
+      this.loggerService.logger().info(`${this.loggerService.loggerInfo('이미 존재하는 유저')}`);
       return {
         ok: true,
       };
@@ -292,9 +233,7 @@ export class UserService {
   async postEmailCheck({ email }: EmailCheckInput): Promise<EmailCheckOutput> {
     try {
       if (!email.includes('.com')) {
-        this.loggerService
-          .logger()
-          .info(`${this.loggerService.loggerInfo('이메일 형식이 아닙니다')}`);
+        this.loggerService.logger().info(`${this.loggerService.loggerInfo('이메일 형식이 아닙니다')}`);
         return {
           ok: false,
           error: 'notEmail',
@@ -303,11 +242,7 @@ export class UserService {
       const user = await this.users.findOne({ email });
 
       if (user) {
-        this.loggerService
-          .logger()
-          .info(
-            `${this.loggerService.loggerInfo('이미 존재하는 유저 입니다')}`,
-          );
+        this.loggerService.logger().info(`${this.loggerService.loggerInfo('이미 존재하는 유저 입니다')}`);
         return {
           ok: false,
           error: 'existUser',
@@ -327,9 +262,7 @@ export class UserService {
     }
   }
 
-  async postCertification({
-    imp_uid,
-  }: CertificatePhoneInput): Promise<CertificatePhoneOutput> {
+  async postCertification({ imp_uid }: CertificatePhoneInput): Promise<CertificatePhoneOutput> {
     try {
       const getToken = await (
         await fetch('https://api.iamport.kr/users/getToken', {
@@ -358,11 +291,7 @@ export class UserService {
       const user = await this.users.findOne({ phoneNum: phone });
       if (user) {
         // ! 핸드폰 인증을 했을때 같은 핸드폰 번호를 가지고 있을 경우
-        this.loggerService
-          .logger()
-          .error(
-            `${this.loggerService.loggerInfo('이미 존재하는 유저 입니다')}`,
-          );
+        this.loggerService.logger().error(`${this.loggerService.loggerInfo('이미 존재하는 유저 입니다')}`);
         return {
           ok: false,
           status: 'fail',
@@ -370,9 +299,7 @@ export class UserService {
       }
 
       // * success
-      this.loggerService
-        .logger()
-        .info(`${this.loggerService.loggerInfo('핸드폰 인증 성공')}`);
+      this.loggerService.logger().info(`${this.loggerService.loggerInfo('핸드폰 인증 성공')}`);
       return {
         ok: true,
         status: 'success',
@@ -387,10 +314,7 @@ export class UserService {
     }
   }
 
-  async getNaverSocialCallback(
-    request: Request,
-    response: Response,
-  ): Promise<void> {
+  async getNaverSocialCallback(request: Request, response: Response): Promise<void> {
     const baseUrl = 'https://nid.naver.com/oauth2.0/token';
     const grantType = 'grant_type=authorization_code';
     const config = {
@@ -558,16 +482,12 @@ export class UserService {
 
         const user = await this.users.save(
           this.users.create({
-            name: allData.kakao_account.profile.nickname
-              ? allData.kakao_account.profile.nickname
-              : 'Unknown',
+            name: allData.kakao_account.profile.nickname ? allData.kakao_account.profile.nickname : 'Unknown',
             email: allData.kakao_account.email,
             password: '',
             socialOnly: true,
             region: '한국',
-            phoneNum: allData.kakao_account.phone
-              ? allData.kakao_account.phone
-              : '',
+            phoneNum: allData.kakao_account.phone ? allData.kakao_account.phone : '',
             refreshToken,
           }),
         );
@@ -617,8 +537,7 @@ export class UserService {
         //TODO phoneNumbers를 어떻게 하면 받아올수있는지 연구 필요
         //? 어떻게 하면 받아올수있을까?
 
-        const apiUrl =
-          'https://people.googleapis.com/v1/people/me?personFields=addresses,emailAddresses,phoneNumbers,names';
+        const apiUrl = 'https://people.googleapis.com/v1/people/me?personFields=addresses,emailAddresses,phoneNumbers,names';
         const allData = await (
           await fetch(`${apiUrl}`, {
             headers: {
@@ -662,9 +581,7 @@ export class UserService {
 
         const user = await this.users.save(
           this.users.create({
-            name: allData.emailAddresses[0].value.split('@')[0]
-              ? allData.emailAddresses[0].value.split('@')[0]
-              : 'Unknown',
+            name: allData.emailAddresses[0].value.split('@')[0] ? allData.emailAddresses[0].value.split('@')[0] : 'Unknown',
             email: allData.emailAddresses[0].value,
             password: '',
             socialOnly: true,
