@@ -28,7 +28,7 @@ export class LoggerService {
       //* 로그 출력 형식 정의
       format: combine(
         timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-        label({ label: 'BOARD-PROJECT' }), // 어플리케이션 이름
+        label({ label: 'NEST-REST-API' }), // 어플리케이션 이름
         logFormat, // log 출력 포맷
         //? format: combine() 에서 정의한 timestamp와 label 형식값이 logFormat에 들어가서 정의되게 된다. level이나 message는 콘솔에서 자동 정의
       ),
@@ -79,16 +79,31 @@ export class LoggerService {
     }
     return logger;
   }
-  loggerInfo(): string {
+
+  /**
+   *  @title 로그 정보 string return 함수
+   *  @description 로그 정보를 보다 보기 쉽게 하기 위해서 만든 함수입니다
+   *  @param {string | null} custom 사용자 커스텀 메시지
+   *  @param {string | null} message 에러 메시지
+   *  @param {string | null} name  에러 이름
+   *  @param {string | null} stack  에러 스택
+   *  @return {string}  최종 메시지
+   */
+  loggerInfo = (
+    custom: string | null = '',
+    message: string | null = '',
+    name: string | null = '',
+    stack: string | null = '',
+  ): string => {
     try {
-      throw Error('');
-    } catch (err) {
-      const callerLine: string = err.stack.split('\n')[2];
-      const apiNameArray: Array<string> = callerLine.split(' ');
-      const apiName: string = apiNameArray.filter(
+      throw Error(message);
+    } catch (error) {
+      const callerLine = error.stack.split('\n')[2];
+      const apiNameArray = callerLine.split(' ');
+      const apiName = apiNameArray.filter(
         (item: string) => item !== null && item !== undefined && item !== '',
       )[1];
-      let LineNumber: string = callerLine
+      let LineNumber = callerLine
         .split('(')[1]
         .split('/')
         .slice(-1)[0]
@@ -96,7 +111,18 @@ export class LoggerService {
       if (LineNumber.includes('C:')) {
         LineNumber = `${LineNumber.split('\\').slice(-1)[0]}`;
       }
-      return `Line Number: ${LineNumber} ::: ${apiName} | Message:`;
+
+      const lineNumberText = `Line Number: ${LineNumber} ::: ${apiName} | `;
+      const errorMessage = `${
+        error.message ? `Error Message: ${error.message} | ` : ''
+      }`;
+      const errorName = `${name ? `Error Name: ${name} | ` : ''}`;
+      const errorStack = `${
+        stack ? `Error Stack: ${stack.split('\n')[1].trim()} | ` : ''
+      }`;
+      const customMessage = `${custom ? `Custom Message : ${custom}` : ''}`;
+
+      return `${lineNumberText}${errorMessage}${errorName}${errorStack}${customMessage}`;
     }
-  }
+  };
 }

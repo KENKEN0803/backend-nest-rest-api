@@ -21,6 +21,10 @@ export class JwtMiddleware implements NestMiddleware {
    *      만약에 만료되었다면 error를 return 합니다
    *  4.  decoded 된 코튼을 해제하여 user의 정보를 찾습니다 authUser에 전달합니다
    *
+   * @title jwt middleware
+   * @param {Request} req
+   * @param {Response} res
+   * @param {NextFunction} next
    */
 
   async use(req: Request, res: Response, next: NextFunction) {

@@ -1,3 +1,4 @@
+import { FRONTEND_URL } from './../common/common.constatnt';
 import { LoggerService } from '../libs/logger/logger.service';
 import { UserEmailInput, UserEmailOutput } from './dto/user-email.dto';
 import {
@@ -30,6 +31,19 @@ export class UserService {
     private readonly loggerService: LoggerService,
   ) {}
 
+  customServerErrorMessage(error: any) {
+    this.loggerService
+      .logger()
+      .error(
+        `${this.loggerService.loggerInfo(
+          'extraError',
+          error.message,
+          error.name,
+          error.stack,
+        )}`,
+      );
+  }
+
   async postJoin({
     name,
     email,
@@ -43,7 +57,9 @@ export class UserService {
         this.loggerService
           .logger()
           .error(
-            `${this.loggerService.loggerInfo()} 사용자가 password와 confirmation_password를 다르게 입력하였을 경우`,
+            `${this.loggerService.loggerInfo(
+              '사용자가 password와 confirmation_password를 다르게 입력하였을 경우',
+            )}`,
           );
         return {
           ok: false,
@@ -58,7 +74,9 @@ export class UserService {
         this.loggerService
           .logger()
           .error(
-            `${this.loggerService.loggerInfo()} 사용자가 password와 confirmation_password를 다르게 입력하였을 경우`,
+            `${this.loggerService.loggerInfo(
+              '사용자가 password와 confirmation_password를 다르게 입력하였을 경우',
+            )}`,
           );
         return {
           ok: false,
@@ -78,15 +96,13 @@ export class UserService {
       //* success
       this.loggerService
         .logger()
-        .info(`${this.loggerService.loggerInfo()} 회원가입 성공`);
+        .info(`${this.loggerService.loggerInfo('회원가입 성공')}`);
       return {
         ok: true,
       };
     } catch (error) {
       //! extraError
-      this.loggerService
-        .logger()
-        .error(`${this.loggerService.loggerInfo()} extraError`);
+      this.customServerErrorMessage(error);
       return {
         ok: false,
         error,
@@ -102,7 +118,9 @@ export class UserService {
         this.loggerService
           .logger()
           .error(
-            `${this.loggerService.loggerInfo()} 사용자가 존재하지 않는 이메일을 입력하였을 경우`,
+            `${this.loggerService.loggerInfo(
+              '사용자가 존재하지 않는 이메일을 입력하였을 경우',
+            )}`,
           );
         return {
           ok: false,
@@ -116,7 +134,9 @@ export class UserService {
         this.loggerService
           .logger()
           .error(
-            `${this.loggerService.loggerInfo()} 잘못된 비밀번호를 입력했을 경우`,
+            `${this.loggerService.loggerInfo(
+              '잘못된 비밀번호를 입력했을 경우',
+            )}`,
           );
         return {
           ok: false,
@@ -137,7 +157,7 @@ export class UserService {
       //* success
       this.loggerService
         .logger()
-        .info(`${this.loggerService.loggerInfo()} 로그인 성공`);
+        .info(`${this.loggerService.loggerInfo('로그인 성공')}`);
       return {
         ok: true,
         token,
@@ -145,9 +165,7 @@ export class UserService {
       };
     } catch (error) {
       //! extraError
-      this.loggerService
-        .logger()
-        .error(`${this.loggerService.loggerInfo()} extraError`);
+      this.customServerErrorMessage(error);
       return {
         ok: false,
         error,
@@ -162,7 +180,7 @@ export class UserService {
       //* success
       this.loggerService
         .logger()
-        .info(`${this.loggerService.loggerInfo()} 회원 아이디 호출 성공`);
+        .info(`${this.loggerService.loggerInfo('회원 아이디 호출 성공')}`);
       return {
         ok: true,
         user,
@@ -171,7 +189,7 @@ export class UserService {
       //! extraError
       this.loggerService
         .logger()
-        .error(`${this.loggerService.loggerInfo()} extraError`);
+        .error(`${this.loggerService.loggerInfo('extraError')}`);
       return { ok: false, error: 'extraError' };
     }
   }
@@ -182,16 +200,14 @@ export class UserService {
       //* success
       this.loggerService
         .logger()
-        .info(`${this.loggerService.loggerInfo()} 회원 이메일 호출 성공`);
+        .info(`${this.loggerService.loggerInfo('회원 이메일 호출 성공')}`);
       return {
         ok: true,
         user,
       };
     } catch (error) {
       //! extraError
-      this.loggerService
-        .logger()
-        .error(`${this.loggerService.loggerInfo()} extraError`);
+      this.customServerErrorMessage(error);
       return { ok: false, error };
     }
   }
@@ -209,7 +225,7 @@ export class UserService {
         //! 유저가 존재 하지 않는 경우
         this.loggerService
           .logger()
-          .error(`${this.loggerService.loggerInfo()} 존재하지 않는 유저`);
+          .error(`${this.loggerService.loggerInfo('존재하지 않는 유저')}`);
         return {
           ok: false,
           error: 'notExistUser',
@@ -221,7 +237,7 @@ export class UserService {
           //! 유저가 비밀번호와 확인 비밀번호를 제대로 입력하지 않았을 경우
           this.loggerService
             .logger()
-            .error(`${this.loggerService.loggerInfo()} 잘못된 비밀번호`);
+            .error(`${this.loggerService.loggerInfo('존재하지 않는 유저')}`);
           return {
             ok: false,
             error: 'wrongPassword',
@@ -244,7 +260,7 @@ export class UserService {
             //! 유저가 이미 존재하는 유저를 입력 했을 경우 에러
             this.loggerService
               .logger()
-              .error(`${this.loggerService.loggerInfo()} 이미 존재하는 유저`);
+              .error(`${this.loggerService.loggerInfo('이미 존재하는 유저')}`);
             return {
               ok: false,
               error: 'existUser',
@@ -259,15 +275,13 @@ export class UserService {
       //* success
       this.loggerService
         .logger()
-        .info(`${this.loggerService.loggerInfo()} 유저 프로필 정보 변경 성공`);
+        .info(`${this.loggerService.loggerInfo('이미 존재하는 유저')}`);
       return {
         ok: true,
       };
     } catch (error) {
       //! extraError
-      this.loggerService
-        .logger()
-        .error(`${this.loggerService.loggerInfo()} extraError`);
+      this.customServerErrorMessage(error);
       return {
         ok: false,
         error: 'extraError',
@@ -278,6 +292,9 @@ export class UserService {
   async postEmailCheck({ email }: EmailCheckInput): Promise<EmailCheckOutput> {
     try {
       if (!email.includes('.com')) {
+        this.loggerService
+          .logger()
+          .info(`${this.loggerService.loggerInfo('이메일 형식이 아닙니다')}`);
         return {
           ok: false,
           error: 'notEmail',
@@ -286,6 +303,11 @@ export class UserService {
       const user = await this.users.findOne({ email });
 
       if (user) {
+        this.loggerService
+          .logger()
+          .info(
+            `${this.loggerService.loggerInfo('이미 존재하는 유저 입니다')}`,
+          );
         return {
           ok: false,
           error: 'existUser',
@@ -297,9 +319,7 @@ export class UserService {
       };
     } catch (error) {
       //! extraError
-      this.loggerService
-        .logger()
-        .error(`${this.loggerService.loggerInfo()} extraError`);
+      this.customServerErrorMessage(error);
       return {
         ok: false,
         error: 'extraError',
@@ -337,17 +357,29 @@ export class UserService {
       const { name, birth, phone } = certificationsInfo;
       const user = await this.users.findOne({ phoneNum: phone });
       if (user) {
+        // ! 핸드폰 인증을 했을때 같은 핸드폰 번호를 가지고 있을 경우
+        this.loggerService
+          .logger()
+          .error(
+            `${this.loggerService.loggerInfo('이미 존재하는 유저 입니다')}`,
+          );
         return {
           ok: false,
           status: 'fail',
         };
       }
 
+      // * success
+      this.loggerService
+        .logger()
+        .info(`${this.loggerService.loggerInfo('핸드폰 인증 성공')}`);
       return {
         ok: true,
         status: 'success',
       };
     } catch (error) {
+      // ! extraError
+      this.customServerErrorMessage(error);
       return {
         ok: false,
         error,
@@ -396,7 +428,7 @@ export class UserService {
         ).json();
 
         if (!allData.response.email) {
-          return response.redirect('http://localhost:3000/login?valid=noEmail');
+          return response.redirect(`${FRONTEND_URL}/login?valid=noEmail`);
         }
 
         const existingUser = await this.users.findOne({
@@ -418,13 +450,11 @@ export class UserService {
             await this.users.save(existingUser);
 
             return response.redirect(
-              `http://localhost:3000/login?login=true&email=${email}&token=${token}&refresh_token=${hashedRefreshToken}`,
+              `${FRONTEND_URL}/login?login=true&email=${email}&token=${token}&refresh_token=${hashedRefreshToken}`,
             );
           }
 
-          return response.redirect(
-            'http://localhost:3000/login?valid=existingUser',
-          );
+          return response.redirect(`${FRONTEND_URL}/login?valid=existingUser`);
         }
 
         const refreshToken = this.jwtService.refreshSign({});
@@ -446,13 +476,13 @@ export class UserService {
         const token = this.jwtService.sign({ id: user.id });
 
         return response.redirect(
-          `http://localhost:3000/login?login=true&email=${user.email}&token=${token}&refresh_token=${hashedRefreshToken}`,
+          `${FRONTEND_URL}/login?login=true&email=${user.email}&token=${token}&refresh_token=${hashedRefreshToken}`,
         );
       } catch (error) {
-        return response.redirect('http://localhost:3000/login?valid=failed');
+        return response.redirect(`${FRONTEND_URL}/login?valid=failed`);
       }
     } else {
-      return response.redirect('http://localhost:3000/login?valid=failed');
+      return response.redirect(`${FRONTEND_URL}/login?valid=failed`);
     }
   }
 
@@ -494,7 +524,7 @@ export class UserService {
         ).json();
 
         if (!allData.kakao_account.email) {
-          return response.redirect('http://localhost:3000/login?valid=noEmail');
+          return response.redirect(`${FRONTEND_URL}/login?valid=noEmail`);
         }
         const existingUser = await this.users.findOne({
           email: allData.kakao_account.email,
@@ -515,13 +545,11 @@ export class UserService {
             await this.users.save(existingUser);
 
             return response.redirect(
-              `http://localhost:3000/login?login=true&email=${email}&token=${token}&refresh_token=${hashedRefreshToken}`,
+              `${FRONTEND_URL}/login?login=true&email=${email}&token=${token}&refresh_token=${hashedRefreshToken}`,
             );
           }
 
-          return response.redirect(
-            'http://localhost:3000/login?valid=existingUser',
-          );
+          return response.redirect(`${FRONTEND_URL}/login?valid=existingUser`);
         }
 
         const refreshToken = this.jwtService.refreshSign({});
@@ -547,14 +575,14 @@ export class UserService {
         const token = this.jwtService.sign({ id: user.id });
 
         return response.redirect(
-          `http://localhost:3000/login?login=true&email=${user.email}&token=${token}&refresh_token=${hashedRefreshToken}`,
+          `${FRONTEND_URL}/login?login=true&email=${user.email}&token=${token}&refresh_token=${hashedRefreshToken}`,
         );
       } catch (error) {
         console.log(error);
-        return response.redirect('http://localhost:3000/login?valid=failed');
+        return response.redirect(`${FRONTEND_URL}/login?valid=failed`);
       }
     } else {
-      return response.redirect('http://localhost:3000/login?valid=failed');
+      return response.redirect(`${FRONTEND_URL}/login?valid=failed`);
     }
   }
 
@@ -600,7 +628,7 @@ export class UserService {
         ).json();
 
         if (!allData.emailAddresses[0].value) {
-          return response.redirect('http://localhost:3000/login?valid=noEmail');
+          return response.redirect(`${FRONTEND_URL}/login?valid=noEmail`);
         }
         const existingUser = await this.users.findOne({
           email: allData.emailAddresses[0].value,
@@ -621,13 +649,11 @@ export class UserService {
             await this.users.save(existingUser);
 
             return response.redirect(
-              `http://localhost:3000/login?login=true&email=${email}&token=${token}&refresh_token=${hashedRefreshToken}`,
+              `${FRONTEND_URL}/login?login=true&email=${email}&token=${token}&refresh_token=${hashedRefreshToken}`,
             );
           }
 
-          return response.redirect(
-            'http://localhost:3000/login?valid=existingUser',
-          );
+          return response.redirect(`${FRONTEND_URL}/login?valid=existingUser`);
         }
 
         const refreshToken = this.jwtService.refreshSign({});
@@ -651,13 +677,13 @@ export class UserService {
         const token = this.jwtService.sign({ id: user.id });
 
         return response.redirect(
-          `http://localhost:3000/login?login=true&email=${user.email}&token=${token}&refresh_token=${hashedRefreshToken}`,
+          `${FRONTEND_URL}/login?login=true&email=${user.email}&token=${token}&refresh_token=${hashedRefreshToken}`,
         );
       } catch (error) {
-        return response.redirect('http://localhost:3000/login?valid=failed');
+        return response.redirect(`${FRONTEND_URL}/login?valid=failed`);
       }
     } else {
-      return response.redirect('http://localhost:3000/login?valid=failed');
+      return response.redirect(`${FRONTEND_URL}/login?valid=failed`);
     }
   }
 }
