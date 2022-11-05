@@ -9,7 +9,7 @@ import { Repository } from 'typeorm';
 import { Request } from 'express';
 import { CreateShopInput, CreateShopOutput } from './dto/create-shop.dto';
 import { Order } from './entities/order.entity';
-import fetch from 'node-fetch';
+import axios from 'axios';
 
 @Injectable()
 export class ShopsService {
@@ -96,10 +96,7 @@ export class ShopsService {
     }
   }
 
-  async postSuccessShop(
-    { imp_uid, merchant_uid, id }: SuccessShopInput,
-    userId: number,
-  ): Promise<SuccessShopOutput> {
+  async postSuccessShop({ imp_uid, merchant_uid, id }: SuccessShopInput, userId: number): Promise<SuccessShopOutput> {
     try {
       const user = await this.users.findOne(userId);
       if (!user) {
@@ -110,26 +107,21 @@ export class ShopsService {
       }
 
       const item = await this.items.findOne(id);
-      const getToken = await (
-        await fetch('https://api.iamport.kr/users/getToken', {
-          method: 'POST', // POST method
-          headers: { 'Content-Type': 'application/json' }, // "Content-Type": "application/json"
-          body: JSON.stringify({
-            imp_key: process.env.SHOP_API_KEY, // REST API키
-            imp_secret: process.env.SHOP_API_SECRET, // REST API Secret
-          }),
-        })
-      ).json();
+      const { data: getToken } = await axios(`https://api.iamport.kr/users/getToken`, {
+        method: 'POST', // POST method
+        headers: { 'Content-Type': 'application/json' },
+        data: {
+          imp_key: process.env.SHOP_API_KEY, // REST API키
+          imp_secret: process.env.SHOP_API_SECRET, // REST API Secret
+        },
+      });
 
       const { access_token } = getToken.response; // 인증 토큰
 
-      const getPaymentData = await (
-        await fetch(`https://api.iamport.kr/payments/${imp_uid}`, {
-          // imp_uid 전달
-          method: 'GET', // GET method
-          headers: { Authorization: access_token }, // 인증 토큰 Authorization header에 추가
-        })
-      ).json();
+      const { data: getPaymentData } = await axios(`https://api.iamport.kr/payments/${imp_uid}`, {
+        method: 'GET', // GET method
+        headers: { Authorization: access_token }, // 인증 토큰 Authorization header에 추가
+      });
 
       const paymentData = getPaymentData.response; // 조회한 결제 정보
 
@@ -242,10 +234,7 @@ export class ShopsService {
     }
   }
 
-  async deleteShop(
-    userId: number,
-    request: Request,
-  ): Promise<DeleteBoardOutput> {
+  async deleteShop(userId: number, request: Request): Promise<DeleteBoardOutput> {
     try {
       const user = await this.users.findOne(userId);
       if (!user) {

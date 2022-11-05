@@ -1,4 +1,4 @@
-import { CONFIG_OPTIIONS } from '../../common/common.constatnt';
+import { CONFIG_OPTIONS } from '../../common/common.constants';
 import { Inject, Injectable } from '@nestjs/common';
 import * as winston from 'winston';
 import * as winstonDaily from 'winston-daily-rotate-file';
@@ -6,9 +6,7 @@ import { LoggerModuleOptions } from './logger.interface';
 
 @Injectable()
 export class LoggerService {
-  constructor(
-    @Inject(CONFIG_OPTIIONS) private readonly options: LoggerModuleOptions,
-  ) {}
+  constructor(@Inject(CONFIG_OPTIONS) private readonly options: LoggerModuleOptions) {}
 
   logger(): winston.Logger {
     const { combine, timestamp, label, printf } = winston.format;
@@ -98,31 +96,27 @@ export class LoggerService {
     try {
       throw Error(message);
     } catch (error) {
-      const callerLine = error.stack.split('\n')[2];
-      const apiNameArray = callerLine.split(' ');
-      const apiName = apiNameArray.filter(
-        (item: string) => item !== null && item !== undefined && item !== '',
-      )[1];
-      let LineNumber = callerLine
-        .split('(')[1]
-        .split('/')
-        .slice(-1)[0]
-        .slice(0, -1);
-      if (LineNumber.includes('C:')) {
-        LineNumber = `${LineNumber.split('\\').slice(-1)[0]}`;
+      try {
+        const callerLine = error.stack.split('\n')[2];
+        const apiNameArray = callerLine.split(' ');
+        const apiName = apiNameArray.filter((item: string) => item !== null && item !== undefined && item !== '')[1];
+        let LineNumber = callerLine.split('(')[1].split('/').slice(-1)[0].slice(0, -1);
+
+        if (LineNumber.includes('C:')) {
+          LineNumber = `${LineNumber.split('\\').slice(-1)[0]}`;
+        }
+
+        const lineNumberText = `Line Number: ${LineNumber} ::: ${apiName} | `;
+        const errorMessage = `${error.message ? `Error Message: ${error.message} | ` : ''}`;
+        const errorName = `${name ? `Error Name: ${name} | ` : ''}`;
+        const errorStack = `${stack ? `Error Stack: ${stack.split('\n')[1].trim()} | ` : ''}`;
+        const customMessage = `${custom ? `Custom Message : ${custom}` : ''}`;
+
+        return `${lineNumberText}${errorMessage}${errorName}${errorStack}${customMessage}`;
+      } catch (error) {
+        const { message, stack, name } = error;
+        return `Error Message: ${message} | Error Name: ${name} | Error Stack: ${stack} `;
       }
-
-      const lineNumberText = `Line Number: ${LineNumber} ::: ${apiName} | `;
-      const errorMessage = `${
-        error.message ? `Error Message: ${error.message} | ` : ''
-      }`;
-      const errorName = `${name ? `Error Name: ${name} | ` : ''}`;
-      const errorStack = `${
-        stack ? `Error Stack: ${stack.split('\n')[1].trim()} | ` : ''
-      }`;
-      const customMessage = `${custom ? `Custom Message : ${custom}` : ''}`;
-
-      return `${lineNumberText}${errorMessage}${errorName}${errorStack}${customMessage}`;
     }
   };
 }

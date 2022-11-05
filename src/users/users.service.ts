@@ -1,4 +1,4 @@
-import { FRONTEND_URL } from './../common/common.constatnt';
+import { FRONTEND_URL } from '../common/common.constants';
 import { LoggerService } from '../libs/logger/logger.service';
 import { UserEmailInput, UserEmailOutput } from './dto/user-email.dto';
 import { CertificatePhoneInput, CertificatePhoneOutput } from './dto/certificate-phone.dto';
@@ -12,7 +12,7 @@ import { User } from './entity/user.entity';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { UserProfileOutput } from './dto/user-profile.dto';
-import fetch from 'node-fetch';
+import axios from 'axios';
 import { Request, Response } from 'express';
 import { URLSearchParams } from 'url';
 import * as bcrypt from 'bcrypt';
@@ -24,10 +24,6 @@ export class UserService {
     private readonly jwtService: JwtService,
     private readonly loggerService: LoggerService,
   ) {}
-
-  customServerErrorMessage(error: any) {
-    this.loggerService.logger().error(`${this.loggerService.loggerInfo('extraError', error.message, error.name, error.stack)}`);
-  }
 
   async postJoin({ name, email, password, confirmation_password, phoneNum }: CreateAccountInput): Promise<CreateAccountOutput> {
     try {
@@ -71,7 +67,8 @@ export class UserService {
       };
     } catch (error) {
       //! extraError
-      this.customServerErrorMessage(error);
+      const { message, name, stack } = error;
+      this.loggerService.logger().error(`${this.loggerService.loggerInfo('extraError', message, name, stack)}`);
       return {
         ok: false,
         error,
@@ -120,7 +117,8 @@ export class UserService {
       };
     } catch (error) {
       //! extraError
-      this.customServerErrorMessage(error);
+      const { message, name, stack } = error;
+      this.loggerService.logger().error(`${this.loggerService.loggerInfo('extraError', message, name, stack)}`);
       return {
         ok: false,
         error,
@@ -156,7 +154,8 @@ export class UserService {
       };
     } catch (error) {
       //! extraError
-      this.customServerErrorMessage(error);
+      const { message, name, stack } = error;
+      this.loggerService.logger().error(`${this.loggerService.loggerInfo('extraError', message, name, stack)}`);
       return { ok: false, error };
     }
   }
@@ -222,7 +221,8 @@ export class UserService {
       };
     } catch (error) {
       //! extraError
-      this.customServerErrorMessage(error);
+      const { message, name, stack } = error;
+      this.loggerService.logger().error(`${this.loggerService.loggerInfo('extraError', message, name, stack)}`);
       return {
         ok: false,
         error: 'extraError',
@@ -254,7 +254,8 @@ export class UserService {
       };
     } catch (error) {
       //! extraError
-      this.customServerErrorMessage(error);
+      const { message, name, stack } = error;
+      this.loggerService.logger().error(`${this.loggerService.loggerInfo('extraError', message, name, stack)}`);
       return {
         ok: false,
         error: 'extraError',
@@ -264,26 +265,21 @@ export class UserService {
 
   async postCertification({ imp_uid }: CertificatePhoneInput): Promise<CertificatePhoneOutput> {
     try {
-      const getToken = await (
-        await fetch('https://api.iamport.kr/users/getToken', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            imp_key: process.env.SHOP_API_KEY, // REST API키
-            imp_secret: process.env.SHOP_API_SECRET, // REST API Secret
-          }),
-        })
-      ).json();
+      const { data: getToken } = await axios(`https://api.iamport.kr/users/getToken`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: {
+          imp_key: process.env.SHOP_API_KEY, // REST API키
+          imp_secret: process.env.SHOP_API_SECRET, // REST API Secret
+        },
+      });
 
       const { access_token } = getToken.response;
 
-      const getCertifications = await (
-        await fetch(`https://api.iamport.kr/certifications/${imp_uid}`, {
-          // imp_uid 전달
-          method: 'GET', // GET method
-          headers: { Authorization: access_token }, // 인증 토큰 Authorization header에 추가
-        })
-      ).json();
+      const { data: getCertifications } = await axios(`https://api.iamport.kr/certifications/${imp_uid}`, {
+        method: 'GET',
+        headers: { Authorization: access_token },
+      });
 
       const certificationsInfo = getCertifications.response;
 
@@ -306,7 +302,8 @@ export class UserService {
       };
     } catch (error) {
       // ! extraError
-      this.customServerErrorMessage(error);
+      const { message, name, stack } = error;
+      this.loggerService.logger().error(`${this.loggerService.loggerInfo('extraError', message, name, stack)}`);
       return {
         ok: false,
         error,
@@ -332,24 +329,19 @@ export class UserService {
     });
 
     const finalUrl = `${baseUrl}?${grantType}&${params}`;
-    const tokenRequest = await (
-      await fetch(`${finalUrl}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      })
-    ).json();
+    const tokenRequest = await axios(`${finalUrl}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
 
     if ('access_token' in tokenRequest) {
       try {
         const { access_token }: any = tokenRequest;
         const apiUrl = 'https://openapi.naver.com/v1/nid/me';
-        const allData = await (
-          await fetch(`${apiUrl}`, {
-            headers: {
-              Authorization: `Bearer ${access_token}`,
-            },
-          })
-        ).json();
+        const { data: allData } = await axios(`${apiUrl}`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${access_token}` },
+        });
 
         if (!allData.response.email) {
           return response.redirect(`${FRONTEND_URL}/login?valid=noEmail`);
@@ -428,24 +420,19 @@ export class UserService {
     });
 
     const finalUrl = `${baseUrl}?${grantType}&${params}`;
-    const tokenRequest = await (
-      await fetch(`${finalUrl}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      })
-    ).json();
+    const tokenRequest = await axios(`${finalUrl}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
 
     if ('access_token' in tokenRequest) {
       try {
         const { access_token }: any = tokenRequest;
         const apiUrl = 'https://kapi.kakao.com/v2/user/me';
-        const allData = await (
-          await fetch(`${apiUrl}`, {
-            headers: {
-              Authorization: `Bearer ${access_token}`,
-            },
-          })
-        ).json();
+        const { data: allData } = await axios(`${apiUrl}`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${access_token}` },
+        });
 
         if (!allData.kakao_account.email) {
           return response.redirect(`${FRONTEND_URL}/login?valid=noEmail`);
@@ -523,12 +510,10 @@ export class UserService {
     });
 
     const finalUrl = `${baseUrl}?${grantType}&${params}`;
-    const tokenRequest = await (
-      await fetch(finalUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      })
-    ).json();
+    const tokenRequest = await axios(`${finalUrl}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
 
     if ('access_token' in tokenRequest) {
       try {
@@ -538,13 +523,10 @@ export class UserService {
         //? 어떻게 하면 받아올수있을까?
 
         const apiUrl = 'https://people.googleapis.com/v1/people/me?personFields=addresses,emailAddresses,phoneNumbers,names';
-        const allData = await (
-          await fetch(`${apiUrl}`, {
-            headers: {
-              Authorization: `Bearer ${access_token}`,
-            },
-          })
-        ).json();
+        const { data: allData } = await axios(`${apiUrl}`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${access_token}` },
+        });
 
         if (!allData.emailAddresses[0].value) {
           return response.redirect(`${FRONTEND_URL}/login?valid=noEmail`);

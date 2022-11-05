@@ -1,4 +1,4 @@
-import { CONFIG_OPTIIONS } from '../../common/common.constatnt';
+import { CONFIG_OPTIONS } from '../../common/common.constants';
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { LoggerModuleOptions } from './logger.interface';
 import { LoggerService } from './logger.service';
@@ -11,7 +11,7 @@ export class LoggerModule {
       module: LoggerModule,
       providers: [
         {
-          provide: CONFIG_OPTIIONS,
+          provide: CONFIG_OPTIONS,
           useValue: options,
         },
         LoggerService,

@@ -36,11 +36,11 @@ export class BoardsController {
   @Post('/write')
   @UseInterceptors(FileInterceptor('image', boardOptions))
   async postWriteBoard(
-    @Body() wrtieBoardInput: WriteBoardInput,
+    @Body() writeBoardInput: WriteBoardInput,
     @AuthUser() authUser: User,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<WriteBoardOutput> {
-    return this.boardService.postWriteBoard(wrtieBoardInput, authUser.id, file);
+    return this.boardService.postWriteBoard(writeBoardInput, authUser.id, file);
   }
 
   @Put('/edit')
